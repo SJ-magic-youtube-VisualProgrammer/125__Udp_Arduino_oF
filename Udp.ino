@@ -185,11 +185,21 @@ void loop() {
 			Serial.println(Udp.remotePort());
 			
 			/********************
+			Udp.read 前に掃除しないと、前回のdataがゴミとして残っていた
 			********************/
+			memset(Buf_for_Receive, '\0', sizeof(Buf_for_Receive));
+			/*
+			for(int i = 0; i < UDP_TX_PACKET_MAX_SIZE; i++){
+				Buf_for_Receive[i] = '\0';
+			}
+			*/
+			
 			Udp.read(Buf_for_Receive, UDP_TX_PACKET_MAX_SIZE);
 			Serial.print("Contents = ");
 			Serial.println(Buf_for_Receive);
 			
+			/********************
+			********************/
 			String str_Message = Buf_for_Receive;
 			String UdpMsgs[MAX_UDP_MSGS];
 			for(int i = 0; i < MAX_UDP_MSGS; i++){
@@ -249,6 +259,16 @@ void loop() {
 		int _packetSize = packetSize;
 		IPAddress _remote = Udp.remoteIP();
 		uint16_t _port = Udp.remoteIP();
+		
+		/********************
+		Udp.read 前に掃除しないと、前回のdataがゴミとして残っていた
+		********************/
+		memset(Buf_for_Receive, '\0', sizeof(Buf_for_Receive));
+		/*
+		for(int i = 0; i < UDP_TX_PACKET_MAX_SIZE; i++){
+			Buf_for_Receive[i] = '\0';
+		}
+		*/
 		Udp.read(Buf_for_Receive, UDP_TX_PACKET_MAX_SIZE);
 		
 		/********************
@@ -263,6 +283,8 @@ void loop() {
 				_packetSize = packetSize;
 				_remote = Udp.remoteIP();
 				_port = Udp.remoteIP();
+				
+				memset(Buf_for_Receive, '\0', sizeof(Buf_for_Receive)); // Udp.read 前に掃除しないと、前回のdataがゴミとして残っていた
 				Udp.read(Buf_for_Receive, UDP_TX_PACKET_MAX_SIZE);
 			}
 		}while(packetSize);
